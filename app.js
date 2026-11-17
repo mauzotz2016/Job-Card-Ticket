@@ -1,14 +1,12 @@
-// =========================================================================
-// 1. APPWRITE CONFIGURATION (Jaza ID zako ukishatengeneza Project Appwrite)
-// =========================================================================
+// MIPANGILIO YA APPWRITE (Jaza IDs zako hapa utakapounganisha database)
 const APPWRITE_CONFIG = {
     endpoint: 'https://cloud.appwrite.io/v1',
-    projectId: 'WEKA_PROJECT_ID_HAPA',
-    databaseId: 'WEKA_DATABASE_ID_HAPA',
+    projectId: 'WEKA_PROJECT_ID_YAKO',
+    databaseId: 'WEKA_DATABASE_ID_YAKO',
     collectionId: 'tickets'
 };
 
-// Barua pepe za idara za Admin (Maintenance na ICT)
+// Barua pepe za idara za Admin (Maintenance & ICT)
 const deptEmails = {
     "Maintenance": "maintenance@kampuniyako.co.tz",
     "ICT": "ict.support@kampuniyako.co.tz"
@@ -17,12 +15,10 @@ const deptEmails = {
 let currentUser = null;
 let tickets = JSON.parse(localStorage.getItem('jobcard_tickets')) || [];
 
-// =========================================================================
-// 2. MFUMO WA LOGIN (USER = IDARA, ADMIN = MAINTENANCE / ICT)
-// =========================================================================
+// 1. Mfumo wa Login
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const name = document.getElementById('loginName').value.trim();
+    const name = document.getElementById('loginName').value;
     const dept = document.getElementById('loginDept').value;
     const isAdmin = (dept === 'Maintenance' || dept === 'ICT');
 
@@ -49,22 +45,19 @@ function logout() {
     document.getElementById('loginSection').classList.remove('hidden');
 }
 
-// Jaza Email ya idara husika kiautomatiki
 function updateTargetEmail() {
     const target = document.getElementById('targetDept').value;
     document.getElementById('targetEmail').value = deptEmails[target] || '';
 }
 
-// =========================================================================
-// 3. KUTUMA TIKETI MPYA (USER)
-// =========================================================================
+// 2. Kutuma Tiketi Mpya (User)
 document.getElementById('ticketForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const targetDept = document.getElementById('targetDept').value;
     const targetEmail = document.getElementById('targetEmail').value;
-    const issueTitle = document.getElementById('issueTitle').value.trim();
+    const issueTitle = document.getElementById('issueTitle').value;
     const priority = document.getElementById('priority').value;
-    const description = document.getElementById('description').value.trim();
+    const description = document.getElementById('description').value;
 
     const newTicket = {
         id: 'JC-' + Math.floor(1000 + Math.random() * 9000),
@@ -86,9 +79,7 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
     alert(`Tiketi ${newTicket.id} imetumwa kwenda ${targetDept} (${targetEmail})!`);
 });
 
-// =========================================================================
-// 4. KUBADILI STATUS (ADMIN PEKEE: MAINTENANCE / ICT)
-// =========================================================================
+// 3. Kubadili Status (Admin Pekee: Maintenance / ICT)
 function changeStatus(ticketId, newStatus) {
     const ticket = tickets.find(t => t.id === ticketId);
     if (!ticket) return;
@@ -100,7 +91,7 @@ function changeStatus(ticketId, newStatus) {
             renderTickets();
             return;
         }
-        ticket.pendingReason = reason.trim();
+        ticket.pendingReason = reason;
     } else {
         ticket.pendingReason = '-';
     }
@@ -109,24 +100,23 @@ function changeStatus(ticketId, newStatus) {
     saveAndRender();
 }
 
+// 4. Rangi za Status
 function getStatusBadge(status) {
     switch(status) {
         case 'Receive':
-            return `<span class="badge-status bg-receive">Receive</span>`;
+            return `<span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-600 text-white">Receive</span>`;
         case 'Pending':
-            return `<span class="badge-status bg-pending">Pending</span>`;
+            return `<span class="px-3 py-1 rounded-full text-xs font-bold bg-orange-500 text-white">Pending</span>`;
         case 'Progress':
-            return `<span class="badge-status bg-progress">Progress</span>`;
+            return `<span class="px-3 py-1 rounded-full text-xs font-bold bg-sky-500 text-white">Progress</span>`;
         case 'Done':
-            return `<span class="badge-status bg-done">Done</span>`;
+            return `<span class="px-3 py-1 rounded-full text-xs font-bold bg-green-600 text-white">Done</span>`;
         default:
             return status;
     }
 }
 
-// =========================================================================
-// 5. KUONYESHA TIKETI KWENYE JEDWALI
-// =========================================================================
+// 5. Kuonyesha Tiketi
 function renderTickets() {
     const tbody = document.getElementById('ticketsTableBody');
     tbody.innerHTML = '';
@@ -140,7 +130,7 @@ function renderTickets() {
     });
 
     if (filteredTickets.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#6b7280; padding:1.5rem;">Hakuna tiketi yoyote kwa sasa.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">Hakuna tiketi yoyote kwa sasa.</td></tr>`;
         return;
     }
 
@@ -148,7 +138,7 @@ function renderTickets() {
         let adminControls = '';
         if (currentUser.isAdmin) {
             adminControls = `
-                <select onchange="changeStatus('${ticket.id}', this.value)" class="status-select">
+                <select onchange="changeStatus('${ticket.id}', this.value)" class="border rounded p-1 text-xs bg-white font-semibold">
                     <option value="Receive" ${ticket.status === 'Receive' ? 'selected' : ''}>Receive</option>
                     <option value="Pending" ${ticket.status === 'Pending' ? 'selected' : ''}>Pending</option>
                     <option value="Progress" ${ticket.status === 'Progress' ? 'selected' : ''}>Progress</option>
@@ -158,21 +148,21 @@ function renderTickets() {
         }
 
         const row = `
-            <tr>
-                <td><strong>${ticket.id}</strong><br><span class="small-text">${ticket.date}</span></td>
-                <td><strong>${ticket.senderDept}</strong><br><span class="small-text">${ticket.createdBy}</span></td>
-                <td>${ticket.targetDept}<br><span class="small-text">${ticket.targetEmail}</span></td>
-                <td>
-                    <strong>${ticket.issueTitle}</strong> (${ticket.priority})
-                    <p class="small-text">${ticket.description}</p>
+            <tr class="hover:bg-gray-50">
+                <td class="p-3 font-bold text-blue-700">${ticket.id}<br><span class="text-xs font-normal text-gray-400">${ticket.date}</span></td>
+                <td class="p-3 font-medium">${ticket.senderDept}<br><span class="text-xs text-gray-500">${ticket.createdBy}</span></td>
+                <td class="p-3">${ticket.targetDept}<br><span class="text-xs text-gray-400">${ticket.targetEmail}</span></td>
+                <td class="p-3">
+                    <span class="font-semibold">${ticket.issueTitle}</span>
+                    <p class="text-xs text-gray-600 truncate max-w-xs">${ticket.description}</p>
                 </td>
-                <td>${getStatusBadge(ticket.status)}</td>
-                <td class="text-orange"><strong>${ticket.pendingReason}</strong></td>
-                <td>
-                    <div class="actions-cell">
-                        ${adminControls}
-                        <button onclick="openPrintModal('${ticket.id}')" class="btn btn-dark">Print JobCard</button>
-                    </div>
+                <td class="p-3">${getStatusBadge(ticket.status)}</td>
+                <td class="p-3 text-xs text-orange-700 font-medium">${ticket.pendingReason}</td>
+                <td class="p-3 flex flex-col gap-1.5">
+                    ${adminControls}
+                    <button onclick="openPrintModal('${ticket.id}')" class="bg-gray-800 hover:bg-black text-white text-xs px-2.5 py-1.5 rounded flex items-center justify-center gap-1">
+                        🖨️ Print JobCard
+                    </button>
                 </td>
             </tr>
         `;
@@ -185,9 +175,7 @@ function saveAndRender() {
     renderTickets();
 }
 
-// =========================================================================
-// 6. KUFUNGUA FOMU YA KU-PRINT (MANUAL WORK)
-// =========================================================================
+// 6. Kufungua Fomu ya Ku-print
 function openPrintModal(ticketId) {
     const t = tickets.find(item => item.id === ticketId);
     if (!t) return;
@@ -198,7 +186,7 @@ function openPrintModal(ticketId) {
     document.getElementById('pCreatedBy').innerText = "Imeandaliwa na: " + t.createdBy;
     document.getElementById('pTargetDept').innerText = t.targetDept;
     document.getElementById('pTargetEmail').innerText = t.targetEmail;
-    document.getElementById('pTitle').innerText = `${t.issueTitle} (${t.priority})`;
+    document.getElementById('pTitle').innerText = t.issueTitle + ` (${t.priority})`;
     document.getElementById('pDesc').innerText = t.description;
     document.getElementById('pStatus').innerText = t.status;
     document.getElementById('pReason').innerText = t.pendingReason;

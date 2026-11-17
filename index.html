@@ -4,26 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mfumo wa JobCard - Hotel & Operations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
-    <!-- Appwrite Web SDK (Optional - tayari kwa kuunganisha) -->
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2"></script>
 </head>
-<body>
+<body class="bg-gray-100 font-sans text-gray-800">
 
     <!-- 1. UKURASA WA LOGIN -->
-    <div id="loginSection" class="login-wrapper">
-        <div class="login-card">
-            <h1 class="title-primary">Mfumo wa JobCard</h1>
-            <p class="subtitle">Ingia kulingana na idara yako</p>
+    <div id="loginSection" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full border-t-4 border-blue-700">
+            <h1 class="text-2xl font-bold text-center text-blue-700 mb-1">Mfumo wa JobCard</h1>
+            <p class="text-sm text-gray-500 text-center mb-6">Ingia kulingana na idara yako</p>
             
-            <form id="loginForm" class="form-stack">
-                <div class="form-group">
-                    <label>Jina Lako (User)</label>
-                    <input type="text" id="loginName" required placeholder="Mfano: Juma Kassim">
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Jina Lako (User)</label>
+                    <input type="text" id="loginName" required placeholder="Mfano: Juma Kassim" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div class="form-group">
-                    <label>Chagua Idara Yako</label>
-                    <select id="loginDept" required>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Chagua Idara Yako</label>
+                    <select id="loginDept" required class="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500">
                         <option value="">-- Chagua Idara --</option>
                         <optgroup label="Idara za Kawaida (Users)">
                             <option value="HouseKeeping">HouseKeeping</option>
@@ -41,160 +40,165 @@
                         </optgroup>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Nenosiri (Password)</label>
-                    <input type="password" id="loginPass" required value="123456">
-                    <span class="hint">*Tumia nenosiri lolote kwa majaribio ya awali</span>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nenosiri (Password)</label>
+                    <input type="password" id="loginPass" required value="123456" class="w-full p-2.5 border rounded-lg">
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Ingia Kwenye Mfumo</button>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition">
+                    Ingia Kwenye Mfumo
+                </button>
             </form>
         </div>
     </div>
 
     <!-- 2. DASHBOARD KUU (USER & ADMIN) -->
-    <div id="dashboardSection" class="dashboard-wrapper hidden">
-        <header class="navbar">
+    <div id="dashboardSection" class="hidden min-h-screen flex flex-col">
+        <header class="bg-blue-800 text-white p-4 shadow-md flex justify-between items-center">
             <div>
-                <h2>JobCard Management System</h2>
-                <p class="badge-text" id="userBadge"></p>
+                <h2 class="text-xl font-bold">JobCard Management System</h2>
+                <p class="text-xs text-blue-200" id="userBadge"></p>
             </div>
-            <button onclick="logout()" class="btn btn-danger">Toka (Logout)</button>
+            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-1.5 rounded text-sm font-medium">
+                Toka (Logout)
+            </button>
         </header>
 
-        <main class="container">
+        <main class="flex-grow container mx-auto p-4 md:p-6 space-y-6">
             
             <!-- SEHEMU YA USER: FOMU YA KUTUMA TIKETI -->
-            <div id="userFormCard" class="card card-accent">
-                <h3 class="card-title">Andaa JobCard (Tiketi Mpya)</h3>
-                <form id="ticketForm" class="grid-form">
-                    <div class="form-group">
-                        <label>Idara Unayotuma Tiketi (Kwenda)</label>
-                        <select id="targetDept" onchange="updateTargetEmail()" required>
+            <div id="userFormCard" class="bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-600">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">Andaa JobCard (Tiketi Mpya)</h3>
+                <form id="ticketForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Idara Unayotuma Tiketi (Kwenda)</label>
+                        <select id="targetDept" onchange="updateTargetEmail()" required class="w-full p-2.5 border rounded-lg bg-white">
                             <option value="">-- Chagua Idara Husika --</option>
                             <option value="Maintenance">Maintenance</option>
                             <option value="ICT">ICT</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Email ya Idara Husika (Automatic)</label>
-                        <input type="email" id="targetEmail" readonly placeholder="Itajijaza yenyewe..." class="readonly-input">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Email ya Idara Husika (Automatic)</label>
+                        <input type="email" id="targetEmail" readonly placeholder="Itajijaza yenyewe..." class="w-full p-2.5 border rounded-lg bg-gray-100 text-gray-600">
                     </div>
-                    <div class="form-group">
-                        <label>Eneo / Kifaa Chenye Tatizo</label>
-                        <input type="text" id="issueTitle" required placeholder="Mfano: AC Chumba 104 / Printer haichapishi">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Eneo / Kifaa Chenye Tatizo</label>
+                        <input type="text" id="issueTitle" required placeholder="Mfano: AC Chumba 104 / Printer haichapishi" class="w-full p-2.5 border rounded-lg">
                     </div>
-                    <div class="form-group">
-                        <label>Kiwango cha Dharura</label>
-                        <select id="priority">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Kiwango cha Dharura</label>
+                        <select id="priority" class="w-full p-2.5 border rounded-lg bg-white">
                             <option value="Kawaida">Kawaida</option>
                             <option value="Haraka">Haraka (Urgent)</option>
                         </select>
                     </div>
-                    <div class="form-group full-width">
-                        <label>Maelezo Kamili ya Kazi</label>
-                        <textarea id="description" rows="3" required placeholder="Elezea tatizo kwa undani..."></textarea>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium mb-1">Maelezo Kamili ya Kazi</label>
+                        <textarea id="description" rows="3" required placeholder="Elezea tatizo kwa undani..." class="w-full p-2.5 border rounded-lg"></textarea>
                     </div>
-                    <div class="form-group full-width align-right">
-                        <button type="submit" class="btn btn-primary">Tuma Tiketi & Arifu kwa Email</button>
+                    <div class="md:col-span-2 flex justify-end">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg shadow">
+                            Tuma Tiketi & Arifu kwa Email
+                        </button>
                     </div>
                 </form>
             </div>
 
             <!-- JEDWALI LA TIKETI -->
-            <div class="card">
-                <div class="table-header">
-                    <h3 class="card-title" id="tableTitle">Orodha ya Tiketi</h3>
-                    <div class="legend">
-                        <span class="pill pill-receive">Receive (Blue)</span>
-                        <span class="pill pill-pending">Pending (Orange)</span>
-                        <span class="pill pill-progress">Progress (Blue)</span>
-                        <span class="pill pill-done">Done (Kijani)</span>
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
+                    <h3 class="text-lg font-bold" id="tableTitle">Orodha ya Tiketi</h3>
+                    <div class="flex flex-wrap gap-2 text-xs font-semibold">
+                        <span class="px-2.5 py-1 rounded bg-blue-600 text-white">Receive (Blue)</span>
+                        <span class="px-2.5 py-1 rounded bg-orange-500 text-white">Pending (Orange)</span>
+                        <span class="px-2.5 py-1 rounded bg-sky-500 text-white">Progress (Blue)</span>
+                        <span class="px-2.5 py-1 rounded bg-green-600 text-white">Done (Kijani)</span>
                     </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr>
-                                <th>Namba</th>
-                                <th>Idara Iliyotuma</th>
-                                <th>Kwenda</th>
-                                <th>Tatizo / Kazi</th>
-                                <th>Status</th>
-                                <th>Sababu (Kama Pending)</th>
-                                <th>Vitendo (Actions)</th>
+                            <tr class="bg-gray-100 border-b text-sm text-gray-600">
+                                <th class="p-3">Namba</th>
+                                <th class="p-3">Idara Iliyotuma</th>
+                                <th class="p-3">Kwenda</th>
+                                <th class="p-3">Tatizo / Kazi</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Sababu (Kama Pending)</th>
+                                <th class="p-3">Vitendo (Actions)</th>
                             </tr>
                         </thead>
-                        <tbody id="ticketsTableBody">
-                            <!-- Data itajaa hapa -->
-                        </tbody>
+                        <tbody id="ticketsTableBody" class="divide-y text-sm"></tbody>
                     </table>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- 3. MODAL YA KU-PRINT JOBCARD (MANUAL WORK) -->
-    <div id="printModal" class="modal-overlay hidden">
-        <div class="modal-box">
-            <div id="printArea" class="print-sheet">
-                <div class="print-header">
+    <!-- 3. MODAL YA KU-PRINT JOBCARD -->
+    <div id="printModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl max-w-2xl w-full p-6 shadow-2xl">
+            <div id="printArea" class="space-y-4">
+                <div class="border-b-2 border-gray-800 pb-4 flex justify-between items-center">
                     <div>
-                        <h2>JOB CARD / WORK ORDER</h2>
-                        <p>Fomu ya Kazi za Ufundi (Manual & System Copy)</p>
+                        <h2 class="text-2xl font-bold uppercase tracking-wider">JOB CARD / WORK ORDER</h2>
+                        <p class="text-sm text-gray-600">Fomu ya Kazi za Ufundi (Manual & System Copy)</p>
                     </div>
                     <div class="text-right">
-                        <strong id="pTicketNo">JC-000</strong>
-                        <p class="small-text" id="pDate"></p>
+                        <p class="font-bold text-lg" id="pTicketNo">JC-000</p>
+                        <p class="text-xs text-gray-500" id="pDate"></p>
                     </div>
                 </div>
 
-                <div class="print-grid">
+                <div class="grid grid-cols-2 gap-4 text-sm border-b pb-4">
                     <div>
-                        <span class="label-muted">Idara Iliyoomba (From):</span>
-                        <p><strong id="pSenderDept"></strong></p>
-                        <p class="small-text" id="pCreatedBy"></p>
+                        <p class="text-gray-500">Idara Iliyoomba (From):</p>
+                        <p class="font-bold text-base" id="pSenderDept"></p>
+                        <p class="text-xs text-gray-600" id="pCreatedBy"></p>
                     </div>
                     <div>
-                        <span class="label-muted">Idara Inayotekeleza (To):</span>
-                        <p><strong id="pTargetDept"></strong></p>
-                        <p class="small-text" id="pTargetEmail"></p>
-                    </div>
-                </div>
-
-                <div class="print-body">
-                    <span class="label-muted">Kichwa cha Kazi / Eneo:</span>
-                    <p><strong id="pTitle"></strong></p>
-                    <span class="label-muted">Maelezo ya Tatizo:</span>
-                    <div class="desc-box" id="pDesc"></div>
-                </div>
-
-                <div class="print-grid">
-                    <div>
-                        <span class="label-muted">Hali ya Sasa (Status):</span>
-                        <p><strong id="pStatus"></strong></p>
-                    </div>
-                    <div>
-                        <span class="label-muted">Sababu ya Kusubiri (Pending Reason):</span>
-                        <p class="text-orange"><strong id="pReason">-</strong></p>
+                        <p class="text-gray-500">Idara Inayotekeleza (To):</p>
+                        <p class="font-bold text-base" id="pTargetDept"></p>
+                        <p class="text-xs text-gray-600" id="pTargetEmail"></p>
                     </div>
                 </div>
 
-                <div class="signature-grid">
+                <div class="space-y-2 text-sm border-b pb-4">
+                    <p class="text-gray-500">Kichwa cha Kazi / Eneo:</p>
+                    <p class="font-bold text-base" id="pTitle"></p>
+                    <p class="text-gray-500 mt-2">Maelezo ya Tatizo:</p>
+                    <p class="p-3 bg-gray-50 border rounded" id="pDesc"></p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-sm border-b pb-4">
                     <div>
-                        <div class="sig-line"></div>
-                        <p class="small-text">Saini ya Fundi (Maintenance / ICT)</p>
+                        <p class="text-gray-500">Hali ya Sasa (Status):</p>
+                        <p class="font-bold uppercase" id="pStatus"></p>
                     </div>
                     <div>
-                        <div class="sig-line"></div>
-                        <p class="small-text">Saini ya Mkuu wa Idara (User Approval)</p>
+                        <p class="text-gray-500">Sababu ya Kusubiri (Pending Reason):</p>
+                        <p class="font-semibold text-orange-700" id="pReason">-</p>
+                    </div>
+                </div>
+
+                <div class="pt-6 grid grid-cols-2 gap-8 text-sm">
+                    <div>
+                        <p class="border-b border-dashed border-gray-400 h-8"></p>
+                        <p class="text-xs text-gray-600 mt-1">Saini ya Fundi (Maintenance / ICT)</p>
+                    </div>
+                    <div>
+                        <p class="border-b border-dashed border-gray-400 h-8"></p>
+                        <p class="text-xs text-gray-600 mt-1">Saini ya Mkuu wa Idara (User Approval)</p>
                     </div>
                 </div>
             </div>
 
-            <div class="modal-actions no-print">
-                <button onclick="closePrintModal()" class="btn btn-secondary">Funga</button>
-                <button onclick="window.print()" class="btn btn-primary">Print JobCard</button>
+            <div class="mt-6 flex justify-end gap-3 no-print">
+                <button onclick="closePrintModal()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg font-medium">Funga</button>
+                <button onclick="window.print()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold flex items-center gap-2">
+                    🖨️ Print JobCard
+                </button>
             </div>
         </div>
     </div>
