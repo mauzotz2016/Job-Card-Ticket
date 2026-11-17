@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mfumo wa JobCard - Hotel & Operations</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Appwrite Web SDK (Optional - tayari kwa kuunganisha) -->
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2"></script>
+</head>
+<body>
+
+    <!-- 1. UKURASA WA LOGIN -->
+    <div id="loginSection" class="login-wrapper">
+        <div class="login-card">
+            <h1 class="title-primary">Mfumo wa JobCard</h1>
+            <p class="subtitle">Ingia kulingana na idara yako</p>
+            
+            <form id="loginForm" class="form-stack">
+                <div class="form-group">
+                    <label>Jina Lako (User)</label>
+                    <input type="text" id="loginName" required placeholder="Mfano: Juma Kassim">
+                </div>
+                <div class="form-group">
+                    <label>Chagua Idara Yako</label>
+                    <select id="loginDept" required>
+                        <option value="">-- Chagua Idara --</option>
+                        <optgroup label="Idara za Kawaida (Users)">
+                            <option value="HouseKeeping">HouseKeeping</option>
+                            <option value="Reception">Reception</option>
+                            <option value="Accounts">Accounts</option>
+                            <option value="General Manager">General Manager</option>
+                            <option value="HR">HR</option>
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="Kitchen">Kitchen</option>
+                            <option value="Store">Store</option>
+                        </optgroup>
+                        <optgroup label="Idara za Ufundi (Admins)">
+                            <option value="Maintenance">Maintenance (Admin)</option>
+                            <option value="ICT">ICT (Admin)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nenosiri (Password)</label>
+                    <input type="password" id="loginPass" required value="123456">
+                    <span class="hint">*Tumia nenosiri lolote kwa majaribio ya awali</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Ingia Kwenye Mfumo</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. DASHBOARD KUU (USER & ADMIN) -->
+    <div id="dashboardSection" class="dashboard-wrapper hidden">
+        <header class="navbar">
+            <div>
+                <h2>JobCard Management System</h2>
+                <p class="badge-text" id="userBadge"></p>
+            </div>
+            <button onclick="logout()" class="btn btn-danger">Toka (Logout)</button>
+        </header>
+
+        <main class="container">
+            
+            <!-- SEHEMU YA USER: FOMU YA KUTUMA TIKETI -->
+            <div id="userFormCard" class="card card-accent">
+                <h3 class="card-title">Andaa JobCard (Tiketi Mpya)</h3>
+                <form id="ticketForm" class="grid-form">
+                    <div class="form-group">
+                        <label>Idara Unayotuma Tiketi (Kwenda)</label>
+                        <select id="targetDept" onchange="updateTargetEmail()" required>
+                            <option value="">-- Chagua Idara Husika --</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="ICT">ICT</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Email ya Idara Husika (Automatic)</label>
+                        <input type="email" id="targetEmail" readonly placeholder="Itajijaza yenyewe..." class="readonly-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Eneo / Kifaa Chenye Tatizo</label>
+                        <input type="text" id="issueTitle" required placeholder="Mfano: AC Chumba 104 / Printer haichapishi">
+                    </div>
+                    <div class="form-group">
+                        <label>Kiwango cha Dharura</label>
+                        <select id="priority">
+                            <option value="Kawaida">Kawaida</option>
+                            <option value="Haraka">Haraka (Urgent)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Maelezo Kamili ya Kazi</label>
+                        <textarea id="description" rows="3" required placeholder="Elezea tatizo kwa undani..."></textarea>
+                    </div>
+                    <div class="form-group full-width align-right">
+                        <button type="submit" class="btn btn-primary">Tuma Tiketi & Arifu kwa Email</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- JEDWALI LA TIKETI -->
+            <div class="card">
+                <div class="table-header">
+                    <h3 class="card-title" id="tableTitle">Orodha ya Tiketi</h3>
+                    <div class="legend">
+                        <span class="pill pill-receive">Receive (Blue)</span>
+                        <span class="pill pill-pending">Pending (Orange)</span>
+                        <span class="pill pill-progress">Progress (Blue)</span>
+                        <span class="pill pill-done">Done (Kijani)</span>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Namba</th>
+                                <th>Idara Iliyotuma</th>
+                                <th>Kwenda</th>
+                                <th>Tatizo / Kazi</th>
+                                <th>Status</th>
+                                <th>Sababu (Kama Pending)</th>
+                                <th>Vitendo (Actions)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketsTableBody">
+                            <!-- Data itajaa hapa -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 3. MODAL YA KU-PRINT JOBCARD (MANUAL WORK) -->
+    <div id="printModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div id="printArea" class="print-sheet">
+                <div class="print-header">
+                    <div>
+                        <h2>JOB CARD / WORK ORDER</h2>
+                        <p>Fomu ya Kazi za Ufundi (Manual & System Copy)</p>
+                    </div>
+                    <div class="text-right">
+                        <strong id="pTicketNo">JC-000</strong>
+                        <p class="small-text" id="pDate"></p>
+                    </div>
+                </div>
+
+                <div class="print-grid">
+                    <div>
+                        <span class="label-muted">Idara Iliyoomba (From):</span>
+                        <p><strong id="pSenderDept"></strong></p>
+                        <p class="small-text" id="pCreatedBy"></p>
+                    </div>
+                    <div>
+                        <span class="label-muted">Idara Inayotekeleza (To):</span>
+                        <p><strong id="pTargetDept"></strong></p>
+                        <p class="small-text" id="pTargetEmail"></p>
+                    </div>
+                </div>
+
+                <div class="print-body">
+                    <span class="label-muted">Kichwa cha Kazi / Eneo:</span>
+                    <p><strong id="pTitle"></strong></p>
+                    <span class="label-muted">Maelezo ya Tatizo:</span>
+                    <div class="desc-box" id="pDesc"></div>
+                </div>
+
+                <div class="print-grid">
+                    <div>
+                        <span class="label-muted">Hali ya Sasa (Status):</span>
+                        <p><strong id="pStatus"></strong></p>
+                    </div>
+                    <div>
+                        <span class="label-muted">Sababu ya Kusubiri (Pending Reason):</span>
+                        <p class="text-orange"><strong id="pReason">-</strong></p>
+                    </div>
+                </div>
+
+                <div class="signature-grid">
+                    <div>
+                        <div class="sig-line"></div>
+                        <p class="small-text">Saini ya Fundi (Maintenance / ICT)</p>
+                    </div>
+                    <div>
+                        <div class="sig-line"></div>
+                        <p class="small-text">Saini ya Mkuu wa Idara (User Approval)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions no-print">
+                <button onclick="closePrintModal()" class="btn btn-secondary">Funga</button>
+                <button onclick="window.print()" class="btn btn-primary">Print JobCard</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
