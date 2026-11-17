@@ -1,12 +1,12 @@
-// MIPANGILIO YA APPWRITE (Jaza IDs zako hapa utakapounganisha database)
+// APPWRITE CONFIG (Fill in your IDs here when you connect the database)
 const APPWRITE_CONFIG = {
     endpoint: 'https://cloud.appwrite.io/v1',
-    projectId: 'WEKA_PROJECT_ID_YAKO',
-    databaseId: 'WEKA_DATABASE_ID_YAKO',
+    projectId: 'YOUR_PROJECT_ID',
+    databaseId: 'YOUR_DATABASE_ID',
     collectionId: 'tickets'
 };
 
-// Barua pepe za idara za Admin (Maintenance & ICT)
+// Admin department emails (Maintenance & ICT)
 const deptEmails = {
     "Maintenance": "maintenance@kampuniyako.co.tz",
     "ICT": "ict.support@kampuniyako.co.tz"
@@ -15,7 +15,7 @@ const deptEmails = {
 let currentUser = null;
 let tickets = JSON.parse(localStorage.getItem('jobcard_tickets')) || [];
 
-// 1. Mfumo wa Login
+// 1. Login System
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const name = document.getElementById('loginName').value;
@@ -26,14 +26,14 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     
     document.getElementById('loginSection').classList.add('hidden');
     document.getElementById('dashboardSection').classList.remove('hidden');
-    document.getElementById('userBadge').innerText = `Mtumiaji: ${name} | Idara: ${dept} (${isAdmin ? 'ADMIN' : 'USER'})`;
+    document.getElementById('userBadge').innerText = `User: ${name} | Department: ${dept} (${isAdmin ? 'ADMIN' : 'USER'})`;
 
     if (isAdmin) {
         document.getElementById('userFormCard').classList.add('hidden');
-        document.getElementById('tableTitle').innerText = `Tiketi Zote Zinazohusu Idara ya ${dept} (Admin Dashboard)`;
+        document.getElementById('tableTitle').innerText = `All Tickets for the ${dept} Department (Admin Dashboard)`;
     } else {
         document.getElementById('userFormCard').classList.remove('hidden');
-        document.getElementById('tableTitle').innerText = `Tiketi Zilizotumwa na Idara ya ${dept}`;
+        document.getElementById('tableTitle').innerText = `Tickets Submitted by the ${dept} Department`;
     }
 
     renderTickets();
@@ -50,7 +50,7 @@ function updateTargetEmail() {
     document.getElementById('targetEmail').value = deptEmails[target] || '';
 }
 
-// 2. Kutuma Tiketi Mpya (User)
+// 2. Submit New Ticket (User)
 document.getElementById('ticketForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const targetDept = document.getElementById('targetDept').value;
@@ -61,7 +61,7 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
 
     const newTicket = {
         id: 'JC-' + Math.floor(1000 + Math.random() * 9000),
-        date: new Date().toLocaleString('sw-TZ'),
+        date: new Date().toLocaleString('en-GB'),
         senderDept: currentUser.dept,
         createdBy: currentUser.name,
         targetDept: targetDept,
@@ -76,18 +76,18 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
     tickets.unshift(newTicket);
     saveAndRender();
     this.reset();
-    alert(`Tiketi ${newTicket.id} imetumwa kwenda ${targetDept} (${targetEmail})!`);
+    alert(`Ticket ${newTicket.id} has been sent to ${targetDept} (${targetEmail})!`);
 });
 
-// 3. Kubadili Status (Admin Pekee: Maintenance / ICT)
+// 3. Change Status (Admins Only: Maintenance / ICT)
 function changeStatus(ticketId, newStatus) {
     const ticket = tickets.find(t => t.id === ticketId);
     if (!ticket) return;
 
     if (newStatus === 'Pending') {
-        const reason = prompt("Weka sababu ya tiketi hii kuwa PENDING (mfano: Tunangoja spea):");
+        const reason = prompt("Enter the reason for setting this ticket to PENDING (e.g. Waiting for spare parts):");
         if (!reason || reason.trim() === "") {
-            alert("Lazima uweke sababu kabla ya kuiweka kwenye Pending!");
+            alert("You must enter a reason before setting the ticket to Pending!");
             renderTickets();
             return;
         }
@@ -100,7 +100,7 @@ function changeStatus(ticketId, newStatus) {
     saveAndRender();
 }
 
-// 4. Rangi za Status
+// 4. Status Colours
 function getStatusBadge(status) {
     switch(status) {
         case 'Receive':
@@ -116,7 +116,7 @@ function getStatusBadge(status) {
     }
 }
 
-// 5. Kuonyesha Tiketi
+// 5. Display Tickets
 function renderTickets() {
     const tbody = document.getElementById('ticketsTableBody');
     tbody.innerHTML = '';
@@ -130,7 +130,7 @@ function renderTickets() {
     });
 
     if (filteredTickets.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">Hakuna tiketi yoyote kwa sasa.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">No tickets at the moment.</td></tr>`;
         return;
     }
 
@@ -175,7 +175,7 @@ function saveAndRender() {
     renderTickets();
 }
 
-// 6. Kufungua Fomu ya Ku-print
+// 6. Open Print Form
 function openPrintModal(ticketId) {
     const t = tickets.find(item => item.id === ticketId);
     if (!t) return;
@@ -183,7 +183,7 @@ function openPrintModal(ticketId) {
     document.getElementById('pTicketNo').innerText = t.id;
     document.getElementById('pDate').innerText = t.date;
     document.getElementById('pSenderDept').innerText = t.senderDept;
-    document.getElementById('pCreatedBy').innerText = "Imeandaliwa na: " + t.createdBy;
+    document.getElementById('pCreatedBy').innerText = "Prepared by: " + t.createdBy;
     document.getElementById('pTargetDept').innerText = t.targetDept;
     document.getElementById('pTargetEmail').innerText = t.targetEmail;
     document.getElementById('pTitle').innerText = t.issueTitle + ` (${t.priority})`;

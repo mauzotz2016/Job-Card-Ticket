@@ -1,6 +1,6 @@
 # JobCard Ticket System (Appwrite Sites)
 
-## Muundo wa Repository (root)
+## Repository Structure (root)
 - package.json
 - build.js
 - index.html
@@ -9,8 +9,8 @@
 - README.md
 - .gitignore
 
-## Settings za Appwrite Sites
-| Sehemu | Weka |
+## Appwrite Sites Settings
+| Field | Value |
 |---|---|
 | Framework | Other (Static) |
 | Install command | `npm install` |
@@ -18,5 +18,5 @@
 | Output directory | `./dist` |
 
 ## Deploy
-1. Pakia mafaili yote moja kwa moja kwenye root ya GitHub repository.
-2. Appwrite itafanya deploy yenyewe baada ya push.
+1. Upload all files directly to the root of your GitHub repository.
+2. Appwrite will deploy automatically after the push.
